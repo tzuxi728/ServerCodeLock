@@ -1,0 +1,16 @@
+# Oxide plugins
+*.csproj
+*.sln
+bin/
+obj/
+*.dll
+*.pdb
+
+# IDE / OS
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
