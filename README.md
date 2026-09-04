@@ -2,7 +2,7 @@
 
 > One-time wipe PIN gate for private Rust servers.
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Framework](https://img.shields.io/badge/framework-Oxide%20%7C%20Carbon-orange)
 ![Game](https://img.shields.io/badge/game-Rust-red)

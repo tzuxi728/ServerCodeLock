@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("ServerCodeLock", "tzuxi728", "1.2.0")]
+    [Info("ServerCodeLock", "tzuxi728", "1.2.1")]
     [Description("One-time wipe PIN gate for private servers. Oxide and Carbon. Author: tzuxi728 | Telegram: @tzuxi")]
     public class ServerCodeLock : RustPlugin
     {
@@ -260,7 +260,7 @@ namespace Oxide.Plugins
                 LoadData();
                 DisableLockHooks();
 
-                WriteLog("INIT  1.2.0  pass_len=" + PasswordLen()
+                WriteLog("INIT  1.2.1  pass_len=" + PasswordLen()
                     + " kick=" + (_config != null ? _config.MaxAttemptsBeforeKick : -1)
                     + " ban=" + (_config != null ? _config.MaxAttemptsBeforeBan : -1)
                     + " authorized=" + _authorized.Count
@@ -1176,7 +1176,7 @@ namespace Oxide.Plugins
             if (!CanAdmin(arg)) { Reply(arg, L("Console.NoPerm", arg)); return; }
 
             StringBuilder sb = new StringBuilder(256);
-            sb.Append("SCL 1.2.0 auth=").Append(_authorized.Count)
+            sb.Append("SCL 1.2.1 auth=").Append(_authorized.Count)
                 .Append(" pending=").Append(_pending.Count)
                 .Append(" attempts=").Append(_attempts.Count)
                 .Append(" shown=").Append(_gateShown)
@@ -1621,9 +1621,29 @@ namespace Oxide.Plugins
             _lockHooksOn = true;
             for (int i = 0; i < LockHooks.Length; i++)
             {
+                if (IsCarbon && IsCarbonBrokenHook(LockHooks[i])) continue;
                 try { Subscribe(LockHooks[i]); }
                 catch { }
             }
+        }
+
+        private static bool IsCarbon
+        {
+            get
+            {
+                try
+                {
+                    Type t = Interface.Oxide.GetType();
+                    return t.Namespace != null && t.Namespace.StartsWith("Carbon");
+                }
+                catch { return false; }
+            }
+        }
+
+        private static bool IsCarbonBrokenHook(string hook)
+        {
+            // Carbon: CanLootEntity fails to patch WorldItem.RPC_OpenLoot (invalid IL code).
+            return hook == "CanLootEntity";
         }
 
         private void DisableLockHooks()
