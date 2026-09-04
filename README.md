@@ -2,7 +2,7 @@
 
 > One-time wipe PIN gate for private Rust servers.
 
-![Version](https://img.shields.io/badge/version-1.2.3-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Framework](https://img.shields.io/badge/framework-Oxide%20%7C%20Carbon-orange)
 ![Game](https://img.shields.io/badge/game-Rust-red)
@@ -31,15 +31,61 @@ private/whitelisted servers: perfect for wipe-gated communities.
 
 ## 📥 Installation
 
-1. Drop `ServerCodeLock.cs` into `oxide/plugins/` (Oxide) or `carbon/plugins/` (Carbon).
-2. Reload the plugin:
+**1. Copy the plugin file**
 
-   ```
-   oxide.reload ServerCodeLock        # Oxide
-   carbon.plugin reload ServerCodeLock # Carbon
-   ```
+- **Oxide:** put `ServerCodeLock.cs` into `oxide/plugins/`
+- **Carbon:** put `ServerCodeLock.cs` into `carbon/plugins/`
 
-3. Done. Any player not in the allow-list sees the keypad on join.
+**2. Load / reload**
+
+```
+oxide.reload ServerCodeLock        # Oxide
+carbon.plugin reload ServerCodeLock # Carbon
+```
+
+If you're updating an already-loaded plugin, do a clean reload so the server
+recompiles the new source:
+
+```
+oxide.plugin unload ServerCodeLock && oxide.plugin load ServerCodeLock   # Oxide
+carbon.plugin unload ServerCodeLock && carbon.plugin load ServerCodeLock # Carbon
+```
+
+**3. Set your PIN** (otherwise the default `1234` is used and a warning is printed):
+
+```
+scl.setpass 4829
+```
+
+**4. Done.** Any player **not** in the allow-list sees the keypad on join and must
+enter the PIN. Admins (config `BypassAdmins`) skip it by default.
+
+---
+
+### 💾 Data & reset (important)
+
+The allow-list is stored in `ServerCodeLock/state.json` (fields `WipeId`,
+`Authorized`, `Attempts`). Data path depends on the framework:
+
+- **Oxide:** `oxide/data/ServerCodeLock/state.json`
+- **Carbon:** `carbon/data/ServerCodeLock/state.json`
+
+> ⚠️ Deleting only a legacy `authorized` file does **not** clear the list — it lives
+> inside `state.json`. To fully reset, delete the whole `ServerCodeLock` data
+> folder **or** use `scl.resetauth` (no file edits needed).
+
+The gate **never** shows for players already in the allow-list and for admins
+when `BypassAdmins` is on — this is by design.
+
+---
+
+### 🧩 Compatible hooks (Oxide vs Carbon)
+
+On **Carbon**, hooks that patch game methods (whose signatures vary per Rust
+build) are excluded at compile time to avoid `Invalid IL code` / `Signature not
+found` errors. The gate still fully freezes the player via input lock +
+snap-back + blocked chat/commands/voice + frozen metabolism. On **Oxide** the
+full hook set is active.
 
 ---
 
@@ -146,15 +192,62 @@ If this plugin saved your server and you want to say thanks or buy a coffee,
 
 ### 📥 Установка
 
-1. Положите `ServerCodeLock.cs` в `oxide/plugins/` (Oxide) или `carbon/plugins/` (Carbon).
-2. Перезагрузите плагин:
+**1. Скопируйте файл плагина**
 
-   ```
-   oxide.reload ServerCodeLock         # Oxide
-   carbon.plugin reload ServerCodeLock # Carbon
-   ```
+- **Oxide:** положите `ServerCodeLock.cs` в `oxide/plugins/`
+- **Carbon:** положите `ServerCodeLock.cs` в `carbon/plugins/`
 
-3. Готово. Любой игрок вне списка допуска видит клавиатуру при входе.
+**2. Загрузите / перезагрузите**
+
+```
+oxide.reload ServerCodeLock         # Oxide
+carbon.plugin reload ServerCodeLock # Carbon
+```
+
+При обновлении уже загруженного плагина сделайте чистую перезагрузку, чтобы сервер
+перекомпилил новый исходник:
+
+```
+oxide.plugin unload ServerCodeLock && oxide.plugin load ServerCodeLock   # Oxide
+carbon.plugin unload ServerCodeLock && carbon.plugin load ServerCodeLock # Carbon
+```
+
+**3. Задайте PIN** (иначе используется дефолт `1234` и печатается предупреждение):
+
+```
+scl.setpass 4829
+```
+
+**4. Готово.** Любой игрок, которого **нет** в списке допуска, видит клавиатуру
+при входе и должен ввести PIN. Админы (конфиг `BypassAdmins`) по умолчанию
+пропускают гейт.
+
+---
+
+### 💾 Данные и сброс (важно)
+
+Список допуска хранится в `ServerCodeLock/state.json` (поля `WipeId`,
+`Authorized`, `Attempts`). Путь зависит от фреймворка:
+
+- **Oxide:** `oxide/data/ServerCodeLock/state.json`
+- **Carbon:** `carbon/data/ServerCodeLock/state.json`
+
+> ⚠️ Удаление только legacy-файла `authorized` **не** очищает список — он лежит
+> внутри `state.json`. Для полного сброса удалите всю папку `ServerCodeLock`
+> целиком **или** используйте `scl.resetauth` (без правки файлов).
+
+Гейт **никогда** не показывается игрокам из списка допуска и админам при
+`BypassAdmins` — это задумано.
+
+---
+
+### 🧩 Хуки на Oxide vs Carbon
+
+На **Carbon** хуки, перехватывающие игровые методы (чьи сигнатуры меняются от
+сборки к сборке Rust), отключаются на этапе компиляции — чтобы не было ошибок
+`Invalid IL code` / `Signature not found`. Гейт при этом по-прежнему полностью
+замораживает игрока: блокировка ввода, возврат на место, блокировка
+чата/команд/войса, замороженный метаболизм. На **Oxide** активен полный набор.
 
 ### 🛠 Команды
 
