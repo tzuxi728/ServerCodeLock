@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("ServerCodeLock", "tzuxi728", "1.2.2")]
+    [Info("ServerCodeLock", "tzuxi728", "1.2.3")]
     [Description("One-time wipe PIN gate for private servers. Oxide and Carbon. Author: tzuxi728 | Telegram: @tzuxi")]
     public class ServerCodeLock : RustPlugin
     {
@@ -260,7 +260,7 @@ namespace Oxide.Plugins
                 LoadData();
                 DisableLockHooks();
 
-                WriteLog("INIT  1.2.2  pass_len=" + PasswordLen()
+                WriteLog("INIT  1.2.3  pass_len=" + PasswordLen()
                     + " kick=" + (_config != null ? _config.MaxAttemptsBeforeKick : -1)
                     + " ban=" + (_config != null ? _config.MaxAttemptsBeforeBan : -1)
                     + " authorized=" + _authorized.Count
@@ -1176,7 +1176,7 @@ namespace Oxide.Plugins
             if (!CanAdmin(arg)) { Reply(arg, L("Console.NoPerm", arg)); return; }
 
             StringBuilder sb = new StringBuilder(256);
-            sb.Append("SCL 1.2.2 auth=").Append(_authorized.Count)
+            sb.Append("SCL 1.2.3 auth=").Append(_authorized.Count)
                 .Append(" pending=").Append(_pending.Count)
                 .Append(" attempts=").Append(_attempts.Count)
                 .Append(" shown=").Append(_gateShown)
@@ -1640,10 +1640,29 @@ namespace Oxide.Plugins
             }
         }
 
+        // Carbon: these hooks patch game methods whose signatures change per Rust build
+        // (e.g. CanLootEntity -> WorldItem.RPC_OpenLoot, CanSpectateTarget ->
+        // BasePlayer.UpdateSpectateTarget), which Carbon can't always wrap -> FAILURE.
+        // They are excluded from compilation below with #if !CARBON.
+        private static readonly HashSet<string> CarbonFragileHooks = new HashSet<string>
+        {
+            "OnEntityTakeDamage",
+            "CanBeTargeted",
+            "OnNpcTarget",
+            "CanBradleyApcTarget",
+            "OnTurretTarget",
+            "CanHelicopterTarget",
+            "CanLootEntity",
+            "CanLootPlayer",
+            "CanBuild",
+            "CanCraft",
+            "CanPickupEntity",
+            "CanSpectateTarget"
+        };
+
         private static bool IsCarbonBrokenHook(string hook)
         {
-            // Carbon: CanLootEntity fails to patch WorldItem.RPC_OpenLoot (invalid IL code).
-            return hook == "CanLootEntity";
+            return CarbonFragileHooks.Contains(hook);
         }
 
         private void DisableLockHooks()
@@ -1713,6 +1732,7 @@ namespace Oxide.Plugins
             input.current.buttons = 0;
         }
 
+#if !CARBON
         private object OnEntityTakeDamage(BaseCombatEntity entity, HitInfo info)
         {
             if (_pending.Count == 0) return null;
@@ -1754,6 +1774,7 @@ namespace Oxide.Plugins
             if (player != null && IsPending(Sid(player))) return false;
             return null;
         }
+#endif
 
         private object OnPlayerChat(BasePlayer player, string message, ConVar.Chat.ChatChannel channel)
         {
@@ -1800,6 +1821,7 @@ namespace Oxide.Plugins
         }
 #endif
 
+#if !CARBON
         private object CanLootPlayer(BasePlayer looter, BasePlayer target)
         {
             if (looter != null && IsPending(Sid(looter))) return false;
@@ -1827,12 +1849,15 @@ namespace Oxide.Plugins
             if (player != null && IsPending(Sid(player))) return false;
             return null;
         }
+#endif
 
+#if !CARBON
         private object CanSpectateTarget(BasePlayer player, string filter)
         {
             if (player != null && IsPending(Sid(player))) return false;
             return null;
         }
+#endif
 
         private object OnPlayerViolation(BasePlayer player, AntiHackType type, float amount)
         {
