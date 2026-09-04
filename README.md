@@ -24,7 +24,6 @@ private/whitelisted servers: perfect for wipe-gated communities.
 - ⏱ Idle timeout auto-kick
 - 🛡 Anti-cheat pause + snap-back while the gate is open
 - 🧊 Blocks damage, targeting, looting, building, chat and more while gated
-- 🌐 Bilingual UI (English / Russian)
 - 📝 File logging and verbose debug mode
 
 ---
