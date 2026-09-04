@@ -115,7 +115,7 @@ bypass?  (админ / модер / право / уже в допуске)
 
 ### Демо
 
-![ServerCodeLock demo](media/demo.gif)
+![ServerCodeLock demo](demo.gif)
 
 Идентификатор вайпа считается из текущего сейва (сид, размер мира, время сейва). Когда `WipeId` меняется, `Authorized` и `Attempts` очищаются — PIN нужно ввести снова.
 
@@ -269,8 +269,7 @@ bypass?  (админ / модер / право / уже в допуске)
 ```
 ServerCodeLock/
 ├── ServerCodeLock.cs   # исходник плагина (drop-in)
-├── media/
-│   └── demo.gif        # демо работы UI
+├── demo.gif            # демо работы UI
 ├── README.md
 ├── README.ru.md
 ├── CHANGELOG.md

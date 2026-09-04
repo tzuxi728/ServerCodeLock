@@ -115,7 +115,7 @@ bypass?  (admin / moderator / permission / already authorized)
 
 ### Demo
 
-![ServerCodeLock demo](media/demo.gif)
+![ServerCodeLock demo](demo.gif)
 
 Wipe identity is derived from the current save (seed, world size, save time). When `WipeId` changes, `Authorized` and `Attempts` are cleared and every player must enter the PIN again.
 
@@ -269,8 +269,7 @@ Set `DebugVerbose` to `true`, reproduce once, then turn it off. Logs grow quickl
 ```
 ServerCodeLock/
 ├── ServerCodeLock.cs   # plugin source (drop-in)
-├── media/
-│   └── demo.gif        # UI demo
+├── demo.gif            # UI demo
 ├── README.md
 ├── README.ru.md
 ├── CHANGELOG.md
